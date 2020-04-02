@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<odoo>
+    <data>
+
+    <record id="action_job_board_report" model="ir.actions.act_window">
+        <field name="name">Job Board Report</field>
+        <field name="res_model">ssi_jobs.board</field>
+        <field name="view_type">form</field>
+        <field name="view_mode">tree,pivot,graph</field>
+        <field name="domain">[('total','!=', 0)]</field>
+        <!-- field name="search_view_id" ref="view_wip_report_search"/ -->
+        <field name="help">This report will show job status and assocaited work order count.</field>
+    </record>
+
+    <record id="ssi_job_board_tree" model="ir.ui.view">
+        <field name="name">ssi_job_board_tree</field>
+        <field name="model">ssi_jobs.board</field>
+        <field name="arch" type="xml">
+            <tree string="Job Board">
+                <field name="name"/>
+                <field name="partner_id"/>
+                <field name="deadline"/>
+                <field name="rating"/>
+                <field name="urgency"/>
+                <field name="stage_id"/>
+                <field name="disassembly" attrs="{'invisible': [('disassembly','=',0)]}"/>
+                <field name="bake_oven" attrs="{'invisible': [('bake_oven','=',0)]}"/>
+                <field name="utilities" attrs="{'invisible': [('utilities','=',0)]}"/>
+                <field name="machine" attrs="{'invisible': [('machine','=',0)]}"/>
+                <field name="winding" attrs="{'invisible': [('winding','=',0)]}"/>
+                <field name="balancing" attrs="{'invisible': [('balancing','=',0)]}"/>
+                <field name="electrical" attrs="{'invisible': [('electrical','=',0)]}"/>
+                <field name="paint" attrs="{'invisible': [('paint','=',0)]}"/>
+                <field name="assembly" attrs="{'invisible': [('assembly','=',0)]}"/>
+                <field name="total"/>
+            </tree>
+        </field>
+    </record>
+
+    <menuitem name="Reports" id="menu_job_report" parent="jobs_menu" sequence="120"/>
+    <menuitem name="Job Board" action="action_job_board_report" id="menu_job_board_report" parent="menu_job_report" sequence="10"/>
+
+    </data>
+</odoo>
+

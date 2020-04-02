@@ -1,0 +1,33 @@
+<?xml version="1.0"?>
+
+<odoo>
+  <record id="ssi_jobs_kanban_view" model="ir.ui.view">
+      <field name="name">ssi_jobs_kanban_view</field>
+      <field name="model">ssi_jobs</field>
+      <field name="inherit_id" ref="ssi_jobs.jobs_kanban"/>
+      <field name="type">kanban</field>
+      <field name="arch" type="xml">
+          <xpath expr="//field[@name='partner_id']" position="after">
+            <field name="eq_rating"/>
+            <field name="eq_rating_unit"/>
+          </xpath>
+      </field>
+  </record>
+
+  <record id="ssi_jobs_tree_view" model="ir.ui.view">
+      <field name="name">ssi_jobs_tree_view</field>
+      <field name="model">ssi_jobs</field>
+      <field name="inherit_id" ref="ssi_jobs.jobs_tree"/>
+      <field name="type">tree</field>
+      <field name="arch" type="xml">
+          <xpath expr="//field[@name='partner_id']" position="after">
+            <field name="eq_rating"/>
+            <field name="eq_rating_unit"/>
+          </xpath>
+          <xpath expr="//field[@name='stage_id']" position="after">
+            <field name="urgency"/>
+          </xpath>
+      </field>
+  </record>
+
+</odoo>

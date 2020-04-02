@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+<odoo>
+<data noupdate="0">
+<template id="osi_print_check_middle">
+    <t t-foreach="docs" t-as="o">
+        <t t-call="web.html_container">
+            <div t-att-data-oe-model="o._name" t-att-data-oe-id="o.id" t-foreach="o._check_get_pages()" t-as="page" class="page article ckus_page ckus_middle_page" t-attf-style="top: {{ o.company_id.us_check_margin_top }}in; left: {{ o.company_id.us_check_margin_left }}in;">
+                <t t-call="osi_check_layout.ckus_stub"><t t-set="stub_num" t-value="1"/></t>
+                <t t-call="osi_check_layout.ckus_check" />
+                <t t-call="osi_check_layout.ckus_stub"><t t-set="stub_num" t-value="2"/></t>
+            </div>
+        </t>
+    </t>
+</template>
+</data>
+</odoo>

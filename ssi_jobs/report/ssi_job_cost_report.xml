@@ -1,0 +1,357 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="job_cost_structure">
+      <t t-call="web.html_container">
+        <t t-call="web.internal_layout">
+            <div class="page">
+                <t t-if="not rows">
+                    <span class="text-center"><h1>Some of the Manufacturing Order(s) selected are not done yet</h1></span>
+                </t>
+                <t t-foreach="rows" t-as="row">
+                <h1 class="d-print-block">Profitability Report for Job <t t-esc="row['orders'][0]['sale'].ssi_job_id.name"/> - <t t-esc="row['orders'][0]['sale'].partner_id.name"/></h1>
+                 <t t-set="total_rev" t-value="0.0"/>
+                 <t t-set="total_cost" t-value="0.0"/>
+                 <t t-foreach="row['orders']" t-as="order">
+                    <t t-set="currency" t-value="order['sale'].currency_id"/>
+                    <t t-set="tot_rev" t-value="0.0"/>
+
+                    <!-- Title -->
+                    <h2 t-esc="order['sale'].name"/>
+<!--                     <strong><t t-esc="line['mo_qty']"/> <t t-esc="line['mo_uom'].name"/>, from <t t-esc="line['mocount']"/> manufacturing order(s).</strong>
+                    <t t-if="line['sub_product_moves']">
+                        <h3>By product(s)</h3>
+                    </t>
+                    <div t-foreach="line['sub_product_moves']" t-as="sub">
+                        <t t-esc="sub.product_id.name"/>
+                        <t t-esc="sub.product_uom_qty"/> <t t-esc="sub.product_uom.name"/>
+                    </div>
+ -->
+                    <!-- Revenue table -->
+                    <h3>Revenue</h3>
+                    <table class="table table-sm">
+                        <thead>
+                            <tr>
+                                <th><span>Product</span></th>
+                                <th class="text-right"><span>Quantity</span></th>
+                                <th class="text-right"><span>Unit Price</span></th>
+                                <th class="text-right"><span>Discount</span></th>
+                                <th class="text-right"><span>Total Price</span></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr t-foreach="order['revenue']" t-as="r">
+                                <td>
+                                    <span t-esc="r[0].display_name"/>
+                                </td>
+                                <td class="text-right">
+                                    <span t-esc="r[2]" t-esc-options='{"widget": "float", "decimal_precision": "Product Unit of Measure"}' />
+                                </td>
+                                <td class="text-right">
+                                    <span t-esc="r[3]" t-options='{"widget": "monetary", "display_currency": currency}'/>
+                                </td>
+                                <td class="text-right">
+                                    <span t-esc="r[4]" t-options='{"widget": "monetary", "display_currency": currency}'/>
+                                </td>
+                                <td class="text-right">
+                                    <span t-esc="r[5]" t-options='{"widget": "monetary", "display_currency": currency}'/>
+                                </td>
+                                <t t-set="tot_rev" t-value="tot_rev + r[5]"/>
+                            </tr>
+                            <tr>
+                                <td colspan="4" class="text-right">
+                                    <strong>Total Revenue</strong>
+                                </td>
+                                <td class="text-right">
+                                    <strong t-esc="tot_rev" t-options='{"widget": "monetary", "display_currency": currency}'/>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <t t-set="total_rev" t-value="total_rev + tot_rev"/>
+                 </t>
+                     
+                 <t t-foreach="row['lines']" t-as="line">
+                    <t t-set="currency" t-value="line['currency']"/>
+                    <t t-set="opcost" t-value="0.0"/>
+                    <t t-set="tot_scrap_cost" t-value="0.0"/>
+
+                    <!-- Title -->
+                    <h2 t-esc="line['product'].name"/>
+                    <strong><t t-esc="line['mo_qty']"/> <t t-esc="line['mo_uom'].name"/>, from <t t-esc="line['mocount']"/> manufacturing order(s).</strong>
+                    <t t-if="line['sub_product_moves']">
+                        <h3>By product(s)</h3>
+                    </t>
+                    <div t-foreach="line['sub_product_moves']" t-as="sub">
+                        <t t-esc="sub.product_id.name"/>
+                        <t t-esc="sub.product_uom_qty"/> <t t-esc="sub.product_uom.name"/>
+                    </div>
+
+                    <!-- Cost Structure table -->
+                    <h3>Cost Structure</h3>
+                    <table class="table table-sm">
+                        <thead>
+                            <tr>
+                                <th><span>Code</span></th>
+                                <th><span>Raw Materials</span></th>
+                                <th class="text-right"><span>Quantity</span></th>
+                                <th class="text-right"><span>Unit Cost</span></th>
+                                <th class="text-right"><span>Total Cost</span></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr t-foreach="line['raw_material_moves']" t-as="m">
+                                <td>
+                                    <span t-esc="m['product_id'].default_code or ''"/>
+                                </td>
+                                <td>
+                                    <span t-att-res-id="m['bom_line_id']" res-model="mrp.bom.line" view-type="form" t-esc="m['product_id'].display_name"/>
+                                </td>
+                                <td class="text-right">
+                                    <span t-esc="m['qty']" t-esc-options='{"widget": "float", "decimal_precision": "Product Unit of Measure"}'/> <span t-esc="m['product_id'].uom_id.name"/>
+                                </td>
+                                <td class="text-right">
+                                    <span t-esc="m['cost'] / m['qty']" t-options='{"widget": "monetary", "display_currency": currency}'/>
+                                </td>
+                                <td class="text-right">
+                                    <span t-esc="m['cost']" t-options='{"widget": "monetary", "display_currency": currency}'/>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td colspan="4" class="text-right">
+                                    <strong>Total Cost of Raw Materials</strong>
+                                </td>
+                                <td class="text-right">
+                                    <strong t-esc="line['total_cost']" t-options='{"widget": "monetary", "display_currency": currency}'/>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <!-- Cost of Operations table -->
+                    <t t-if="line['operations']">
+                        <h3>Cost of Operations</h3>
+                        <table class="table table-sm">
+                            <thead>
+                                <tr>
+                                    <!-- th><span>Operator</span></th -->
+                                    <th><span>Operation</span></th>
+                                    <th class="text-right"><span>Working Time</span></th>
+                                    <th class="text-right"><span>Expected Time</span></th>
+                                    <th class="text-right"><span>Time Diff</span></th>
+                                    <th class="text-right"><span>Labor Cost</span></th>
+                                    <th class="text-right"><span>Burden Cost</span></th>
+                                    <th class="text-right"><span>Total Cost</span></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr t-foreach="line['operations']" t-as="l">
+                                    <!-- td>
+                                        <span t-esc="l[0]"/>
+                                    </td -->
+                                    <td>
+                                        <span t-att-res-id="l[1]" res-model="mrp.routing.workcenter" view-type="form" t-esc="l[2]"/>
+                                    </td>
+                                    <td class="text-right">
+                                        <span> <t t-esc="l[3]" t-options='{"widget": "float", "precision": 4}'/> hours</span>
+                                    </td>
+                                    <td class="text-right">
+                                        <span> <t t-esc="l[8]" t-options='{"widget": "float", "precision": 4}'/> hours </span>
+                                    </td>
+                                    <td class="text-right">
+                                        <t t-if="l[8]-l[3] &lt; 0">
+                                            <span class="text-danger"> <t t-esc="l[8]-l[3]" t-options='{"widget": "float", "precision": 4}'/> hours</span>
+                                        </t>
+                                        <t t-if="not l[8]-l[3] &lt; 0">
+                                            <span> <t t-esc="l[8]-l[3]" t-options='{"widget": "float", "precision": 4}'/> hours</span>
+                                        </t>
+                                    </td>
+                                    <td class="text-right">
+                                        <span t-esc="l[5]" t-options='{"widget": "monetary", "display_currency": currency}'/>
+                                    </td>
+                                    <td class="text-right">
+                                        <span t-esc="l[6]" t-options='{"widget": "monetary", "display_currency": currency}'/>
+                                    </td>
+                                    <td class="text-right">
+                                        <span t-esc="l[7]" t-options='{"widget": "monetary", "display_currency": currency}'/>
+                                    </td>
+
+                                    <t t-set="opcost" t-value="opcost + l[7]"/>
+                                </tr>
+                                <tr>
+                                    <td colspan="6" class="text-right">
+                                        <strong>Total Cost of Operations</strong>
+                                    </td>
+                                    <td class="text-right">
+                                        <span t-esc="opcost" t-options='{"widget": "monetary", "display_currency": currency}'/>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </t>
+
+                    <!-- Cost of Scraps table -->
+                    <t t-if="line['scraps']">
+                        <h3>Cost of Scraps</h3>
+                        <table class="table table-sm">
+                            <thead>
+                                <tr>
+                                    <th><span>Scraps</span></th>
+                                    <th class="text-right"><span>Quantity</span></th>
+                                    <th class="text-right"><span>Unit Cost</span></th>
+                                    <th class="text-right"><span>Total Cost</span></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr t-foreach="line['scraps']" t-as="scrap">
+                                    <td>
+                                        <span t-att-res-id="scrap.id" res-model="stock.move" view-type="form" t-esc="scrap.product_id.display_name"/>
+                                    </td>
+                                    <td class="text-right">
+                                        <span><t t-esc="scrap.product_uom_qty"/> <t t-esc="scrap.product_uom.name"/></span>
+                                    </td>
+                                    <td class="text-right">
+                                        <span t-esc="scrap.price_unit" t-options='{"widget": "monetary", "display_currency": currency}'/>
+                                    </td>
+                                    <td class="text-right">
+                                        <span t-esc="scrap.product_uom_qty * scrap.price_unit" t-options='{"widget": "monetary", "display_currency": currency}'/>
+                                    </td>
+
+                                    <t t-set="tot_scrap_cost" t-value="tot_scrap_cost + (scrap.product_uom_qty * scrap.price_unit)"/>
+                                </tr>
+                                <tr>
+                                    <td colspan="3" class="text-right">
+                                        <strong>Total Cost of Scraps</strong>
+                                    </td>
+                                    <td class="text-right">
+                                        <span t-esc="tot_scrap_cost" t-options='{"widget": "monetary", "display_currency": currency}'/>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </t>
+
+                    <!-- Cost table -->
+                    <div class="row">
+                        <div class="col-6 offset-6">
+                            <table class="table table-sm">
+                                <!-- tr t-if="line['mo_qty'] &gt; 1">
+                                    <td class="text-right">
+                                        <strong>Cost for <t t-esc="line['mo_qty']"/> <t t-esc="line['mo_uom'].name"/></strong>
+                                    </td>
+                                    <td class="text-right">
+                                        <strong t-esc="line['total_cost'] + opcost" t-options='{"widget": "monetary", "display_currency": currency}'/>
+                                    </td>
+                                </tr -->
+                                <tr>
+                                    <td class="text-right">
+                                        <strong>Total MO Cost</strong>
+                                    </td>
+                                    <th class="text-right">
+                                        <t t-set="unit_cost" t-value="(line['total_cost'] + opcost)"/>
+                                        <strong t-esc="(line['total_cost'] + opcost)" t-options='{"widget": "monetary", "display_currency": currency}'/>
+                                    </th>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                    <t t-set="total_cost" t-value="total_cost + unit_cost"/>
+                 </t>
+
+                 <t t-foreach="row['orders']" t-as="ocost">
+                    <t t-set="currency" t-value="ocost['sale'].currency_id"/>
+                    <t t-set="tot_cost" t-value="0.0"/>
+
+                    <t t-if="ocost['cost']">
+                        <h1>Additional Cost</h1>
+                        <h2 t-esc="ocost['sale'].name"/>
+                        <table class="table table-sm">
+                            <thead>
+                                <tr>
+                                    <th><span>Product</span></th>
+                                    <th class="text-right"><span>Quantity</span></th>
+                                    <th class="text-right"><span>Unit Cost</span></th>
+                                    <th class="text-right"><span>Total Cost</span></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr t-foreach="ocost['cost']" t-as="c">
+                                    <td>
+                                        <span t-esc="c[0].display_name"/>
+                                    </td>
+                                    <td class="text-right">
+                                        <span t-esc="c[2]" t-esc-options='{"widget": "float", "decimal_precision": "Product Unit of Measure"}' />
+                                    </td>
+                                    <td class="text-right">
+                                        <span t-esc="c[3]" t-options='{"widget": "monetary", "display_currency": currency}'/>
+                                    </td>
+                                    <td class="text-right">
+                                        <span t-esc="c[4]" t-options='{"widget": "monetary", "display_currency": currency}'/>
+                                    </td>
+                                    <t t-set="tot_cost" t-value="tot_cost + c[4]"/>
+                                </tr>
+                                <tr>
+                                    <td colspan="3" class="text-right">
+                                        <strong>Total Cost</strong>
+                                    </td>
+                                    <td class="text-right">
+                                        <strong t-esc="tot_cost" t-options='{"widget": "monetary", "display_currency": currency}'/>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <t t-set="total_cost" t-value="total_cost + tot_cost"/>
+                    </t>
+                </t>
+
+                    <!-- Profit Summary -->
+                    <t t-set="currency" t-value="row['orders'][0]['sale'].currency_id"/>
+                    <div class="row">
+                        <h2>Profit Summary for Job <t t-esc="row['orders'][0]['sale'].ssi_job_id.name"/></h2>
+                    </div>
+                    <div class="row">
+                        <div class="col-6 offset-6">
+                            <table class="table table-sm">
+                                <tr>
+                                    <td class="text-right">
+                                        <strong>Total Revenue</strong>
+                                    </td>
+                                    <th class="text-right">
+                                        <strong t-esc="total_rev" t-options='{"widget": "monetary", "display_currency": currency}'/>
+                                    </th>
+                                </tr>
+                                <tr>
+                                    <td class="text-right">
+                                        <strong>Total Cost</strong>
+                                    </td>
+                                    <th class="text-right">
+                                        <strong t-esc="total_cost" t-options='{"widget": "monetary", "display_currency": currency}'/>
+                                    </th>
+                                </tr>
+                                <tr>
+                                    <td class="text-right">
+                                        <strong>Total Profit</strong>
+                                    </td>
+                                    <th class="text-right">
+                                        <strong t-esc="total_rev-total_cost" t-options='{"widget": "monetary", "display_currency": currency}'/>
+                                    </th>
+                                </tr>
+                                <tr>
+                                    <td class="text-right">
+                                        <strong>Gross Margin %</strong>
+                                    </td>
+                                    <th class="text-right">
+                                        <strong t-esc="((total_rev-total_cost)/total_rev)*100" t-options='{"widget": "float", "precision": 2}'/> %
+                                    </th>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+
+
+                    
+                </t>
+            </div>
+        </t>
+      </t>
+    </template>
+</odoo>

@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+
+<odoo>
+  <record id="ssi_analytic_account_view" model="ir.ui.view">
+      <field name="name">ssi_analytic_account_view</field>
+      <field name="model">account.analytic.account</field>
+      <field name="inherit_id" ref="account_budget.view_account_analytic_account_form_inherit_budget"/>
+      <field name="type">form</field>
+      <field name="arch" type="xml">
+        <xpath expr="//notebook" position="attributes">
+            <!-- Show the notebook to accounting users -->
+            <attribute name="groups">account.group_account_user, account.gm_and_wip</attribute>
+        </xpath>
+      </field>
+  </record>
+
+</odoo>

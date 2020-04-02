@@ -1,0 +1,8 @@
+<?xml version="1.0"?>
+
+<odoo>
+  <data noupdate="1">
+  <!-- <data> -->
+    <function id="add_default_records_on_install" model="ssi_jobs_stage" name="add_default_records_on_install"/>
+  </data>
+</odoo>

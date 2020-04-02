@@ -1,0 +1,35 @@
+<?xml version="1.0"?>
+<odoo>
+    <record id="account_invoice_job_validate_wizard_view" model="ir.ui.view">
+        <field name="name">account.invoice.job.validate.wizard.view</field>
+        <field name="model">account.invoice.job.validate</field>
+        <field name="type">form</field>
+        <field name="arch" type="xml">
+            <form>
+                <field name="is_valid" invisible="1"/>
+                <h2 style="padding: 16px; background-color: red;" attrs="{'invisible': [('is_valid', '=', True)]}">Warning! Corresponding MO is open</h2>
+                <h2 style="padding: 16px; background-color: green;" attrs="{'invisible': [('is_valid', '=', False)]}">Ready to validate?</h2>
+                <field style="padding: 16px;" name="warning_note" widget="html" readonly="1" attrs="{'invisible': [('is_valid', '=', True)]}"/>
+                <footer>
+                    <button class="btn-primary" 
+                    name="invoice_validate"
+                    string="Validate"
+                    type="object" />
+                    or
+                    <button class="btn-default" 
+                    special="cancel"
+                    string="Cancel" />
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_account_invoice_job_validate" model="ir.actions.act_window">
+        <field name="name">Invoice Job Validate</field>
+        <field name="res_model">account.invoice.job.validate</field>
+        <field name="view_type">form</field>
+        <field name="view_mode">form</field>
+        <field name="view_id" ref="account_invoice_job_validate_wizard_view"/>
+        <field name="target">new</field>
+    </record>
+</odoo>

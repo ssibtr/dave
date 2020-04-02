@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<odoo>
+    <data>
+        <record id="ssi_attendance_line_form" model="ir.ui.view">
+        <field name="name">ssi.attendance_line_form</field>
+			<field name="model">hr.attendance</field>
+        <field name="inherit_id" ref="hr_attendance.hr_attendance_view_form"/>
+        <field name="type">form</field>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='check_out']" position="after">
+                    <field name="attendance_lines" context ="{'employee_id': employee_id}"> 
+                      <tree string="lines" create="true" edit="true" default_order="check_in">
+                        <field name="check_in"/>
+                        <field name="check_out"/>
+                        <field name="job_id"/>
+                        <field name="workorder_id"/>
+                        <field name="worked_hours" string="Job Hours" sum="Total Worked Hours"/>
+                        <field name="status" readonly="1"/>
+                      </tree>
+                    </field>
+                </xpath>
+                <xpath expr="//sheet" position="after">
+                <div class="oe_chatter">
+                    <field name="message_follower_ids" widget="mail_followers"/>
+                    <field name="activity_ids" widget="mail_activity"/>
+                    <field name="message_ids" widget="mail_thread"/>
+                </div>
+                </xpath>
+            </field>
+        </record>
+
+        <record id="ssi_attendance_line_form_inherit" model="ir.ui.view">
+            <field name="name">ssi.attendance_line_form_inherit</field>
+            <field name="model">hr.attendance</field>
+            <field name="inherit_id" ref="hr_attendance.hr_attendance_view_form"/>
+            <field name="arch" type="xml">
+              <xpath expr="//field[@name='attendance_lines']" position="inside">
+                <form>
+                  <sheet string="Attendance  Detail">
+                    <group>
+                        <group>
+                          <field name="employee_id"/>
+                          <field name="check_in"/>
+                          <field name="check_out"/>
+                          <field name="worked_hours" string="Job Hours"/>
+                        </group>
+                        <group>
+                          <field name="status" readonly="1"/>
+                          <field name="job_id" domain="[('hide_in_kiosk', '=', False)]" options="{'always_reload': True, 'no_create': True, 'no_create_edit': True}" required="1"/>
+                          <field name="workorder_id" domain="[('ssi_job_id', '=', job_id)]" options="{'always_reload': True, 'no_create': True, 'no_create_edit': True}" required="1"/>
+                        </group>
+                      <separator/>
+                    </group>
+                  </sheet>
+                </form>
+              </xpath>                
+            </field>
+        </record>
+
+        <record id="ssi_attendance_search_inherit" model="ir.ui.view">
+            <field name="name">ssi.attendance_search_inherit</field>
+            <field name="model">hr.attendance</field>
+            <field name="inherit_id" ref="hr_attendance.hr_attendance_view_filter"/>
+            <field name="arch" type="xml">
+                <xpath expr="//filter[@name='myattendances']" position="after">
+                    <separator/>
+                    <filter string="My Approvals" name="ssi_approvals" domain="[['manager_id.user_id.id', '=', uid]]"/>
+                </xpath>
+              <xpath expr="//filter[@name='employee']" position="after">
+                <filter context="{'group_by': 'manager_id'}" name="group_by_manager" string="Manager"/>
+                <filter context="{'group_by': 'department_id'}" name="group_by_dept" string="Department"/>
+              </xpath>
+            </field>
+        </record>
+
+        <record id="ssi_attendance_line_tree" model="ir.ui.view">
+            <field name="name">ssi.attendance_line_tree</field>
+            <field name="model">hr.attendance.line</field>
+            <field name="arch" type="xml">
+                <tree string="Attendance Lines" create="false" delete="false" edit="false">
+                    <field name="job_id"/>
+                    <field name="workorder_id"/>
+                    <field name="employee_id"/>
+                    <field name="check_in"/>
+                    <field name="check_out"/>
+                    <field name="worked_hours" string="Job Hours"/>
+                    <field name="status"/>
+                </tree>
+            </field>
+        </record>
+
+        <record id="ssi_attendance_lines_search" model="ir.ui.view">
+            <field name="name">ssi_attendance_lines_search</field>
+            <field name="model">hr.attendance.line</field>
+            <field name="arch" type="xml">
+                <search string="Search Attendance Lines">
+                    <field name="job_id"/>
+                    <field name="employee_id"/>
+                    <field name="workorder_id"/>
+                    <separator/>
+                    <filter string="My Approvals" name="ssi_approvals" domain="[['manager_id.user_id.id', '=', uid]]"/>
+                    <separator/>
+                    <filter name="check_in_filter" string="Check In Date" date="check_in"/>
+                    <filter name="open_filter" string="Open Lines" domain="[('status', '=', 'open')]"/>
+                    <group name="groupby">
+                        <filter context="{'group_by': 'manager_id'}" name="group_by_manager" string="Manager"/>
+                        <filter context="{'group_by': 'department_id'}" name="group_by_dept" string="Department"/>
+                        <filter name="employee_groupby" string="Employee" context="{'group_by': 'employee_id'}"/>
+                        <filter name="job_groupby" string="Job" context="{'group_by': 'job_id'}"/>
+                    </group>
+                </search>
+            </field>
+        </record>
+
+        <record model="ir.actions.act_window" id="ssi_hr_attendance_lines_view">
+          <field name="name">Attendance Lines</field>
+          <field name="res_model">hr.attendance.line</field>
+          <field name="view_mode">tree</field>
+          <field name="context">{"search_default_ssi_approvals": 1, "search_default_group_by_dept": 1}</field>
+        </record>
+
+        <menuitem 
+        id="menu_ssi_hr_attendance_lines_view"
+        parent="hr_attendance.menu_hr_attendance_manage_attendances" 
+        name="Attendance Lines" 
+        sequence="12" 
+        action="ssi_hr_attendance_lines_view"/>
+
+    </data>
+</odoo>

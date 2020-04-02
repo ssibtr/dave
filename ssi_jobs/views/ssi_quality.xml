@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<odoo>
+    <data>
+
+      <record model="ir.ui.view" id="ssi_jobs.quality_check_view_form">
+          <field name="name">ssi_quality_check_view_form</field>
+          <field name="model">quality.check</field>
+          <field name="inherit_id" ref="quality_control.quality_check_view_form"/>
+          <field name="type">form</field>
+          <field name="arch" type="xml">
+              <xpath expr="//field[@name='product_id']" position="after">
+                  <field name="workorder_id" readonly="1"/>
+                  <field name="ssi_job_id" readonly="1"/>                  
+              </xpath>
+              <xpath expr="//field[@name='product_id']" position="attributes">
+                  <attribute name="attrs">{"invisible": [["workorder_id","!=",False]]}</attribute>
+              </xpath>
+              <xpath expr="//field[@name='note']" position="replace">
+                  <field name="wo_notes"/>
+              </xpath>
+          </field>
+      </record>
+
+      <record model="ir.ui.view" id="ssi_jobs.quality_check_view_tree">
+          <field name="name">ssi_quality_check_view_tree</field>
+          <field name="model">quality.check</field>
+          <field name="inherit_id" ref="quality_control.quality_check_view_tree"/>
+          <field name="type">tree</field>
+          <field name="arch" type="xml">
+              <xpath expr="//field[@name='lot_id']" position="before">
+                  <field name="wo_notes"/>
+              </xpath>
+              <xpath expr="//field[@name='product_id']" position="replace"/>
+          </field>
+      </record>
+
+    <record id="mrp_action_create_qc" model="ir.actions.act_window">
+        <field name="name">Quality Check</field>
+        <field name="res_model">quality.check</field>
+        <field name="view_mode">form,tree,graph</field>
+        <field name="domain">[('workorder_id','=', active_id)]</field>
+        <field name="context">{'default_workorder_id': active_id}</field>
+    </record>
+
+    <record id="mrp_see_quality_check" model="ir.actions.act_window">
+        <field name="name">Quality Check</field>
+        <field name="res_model">quality.check</field>
+        <field name="view_mode">tree,form,graph</field>
+        <field name="domain">[('workorder_id', '=', active_id)]</field>
+        <field name="context">{'search_default_workorder_id': active_id, 'default_workorder_id': active_id}</field>
+    </record>
+
+      <record model="ir.ui.view" id="ssi_jobs.mrp_production_workorder_form_view_inherit">
+          <field name="name">ssi_mrp_production_workorder_form_view_inherit</field>
+          <field name="model">mrp.workorder</field>
+          <field name="inherit_id" ref="mrp.mrp_production_workorder_form_view_inherit"/>
+          <field name="type">form</field>
+          <field name="arch" type="xml">
+              <xpath expr="//button[@name='button_start']" position="after">
+                    <button string="Create Check" name="%(mrp_action_create_qc)d" type="action" class="oe_highlight"/>
+              </xpath>
+              <xpath expr="//button[@name='action_see_move_scrap']" position="after">
+                <button class="oe_stat_button" icon="fa-check-square-o" type="action" name="%(mrp_see_quality_check)d" attrs="{'invisible': [('quality_check_count', '=', 0)]}">
+                  <field name="quality_check_count" string="Quality Check" widget="statinfo"/>
+                </button>
+              </xpath>
+          </field>
+      </record>
+
+
+    </data>
+</odoo>
+
